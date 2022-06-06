@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+    <div class="content">
+        {% for i in tag %}
+            <p>{{ i.name }}</p>
+
+    {% endfor %}
+
+
+    </div>
+
+
+
+
+
+{% endblock %}
+

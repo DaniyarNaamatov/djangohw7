@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="content">
+        <h5>Title - {{ detail.title }}</h5>
+        <p>Text - {{ detail.text }}</p>
+        <p>Created - {{ detail.created_at }}</p>
+        <p>Updated - {{ detail.updated_at }}</p>
+        <p>
+            {% for tag in detail.tags.all %}
+                <a href="">{{ tag.name }}</a>
+            {% endfor %}
+        </p>
+        <hr>
+        <h4>Comments</h4>
+        {% for i in comments %}
+            <p>{{ i.author }}</p>
+            <p>{{ i.text }}</p>
+            <hr>
+        {% endfor %}
+    </div>
+{% endblock %}

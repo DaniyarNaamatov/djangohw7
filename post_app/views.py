@@ -2,12 +2,14 @@ import getopt
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
+from django.urls import reverse_lazy
+
 from .models import News, NewsComment, Tag
 from post_app.forms import CreateNewsForm, LoginForms, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 
 def test(request):
     return HttpResponse('<h1 style="color:red;">Hello World!</h1>')
@@ -39,7 +41,23 @@ class NewsListView(ListView):
         context['word'] = self.request.GET.get('search', '')
         return context
 
-# @login_required(login_url='/login/')
+class HomeNews(ListView):
+    queryset = News.objects.all()
+    model = News
+    template_name = 'home_news.html'
+    context_object_name = 'news'
+    # extra_context = {'title': 'Главная'}
+
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Главная страница'
+        return context
+
+    def get_queryset(self):
+        return News.objects.all()
+
+
 def news_list_view(request):
     search_word = request.GET.get('search', '')
     page = int(request.GET.get('page', '1'))
@@ -57,27 +75,46 @@ def news_list_view(request):
     }
     return render(request, 'news.html', context=context)
 
-def news_detail_view(request, id):
-    try:
-        news_detail = News.objects.get(id=id)
-    except News.DoesNotExist:
-        raise Http404('News not FOUND!!!')
-    comments = NewsComment.objects.filter(news_id=id)
-    return render(request, 'news_detail.html', context={
-        'detail': news_detail,
-        'comments': comments
-  })
-@login_required(login_url='/login/')
-def create_news_view(request):
-    form = CreateNewsForm()
-    if request.method == 'POST':
-        form = CreateNewsForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/news/')
-    return render(request, 'create_news.html', context={
-        'form': form
-    })
+
+
+
+class ViewNews(DetailView):
+    model = News
+    pk_url_kwarg = 'news_id'
+    template_name = 'news_detail.html'
+    context_object_name = 'news_item'
+
+
+
+# def news_detail_view(request, id):
+#     try:
+#         news_detail = News.objects.get(id=id)
+#     except News.DoesNotExist:
+#         raise Http404('News not FOUND!!!')
+#     comments = NewsComment.objects.filter(news_id=id)
+#     return render(request, 'news_detail.html', context={
+#         'detail': news_detail,
+#         'comments': comments
+#   })
+
+
+class CreateNews(CreateView):
+    form_class = CreateNewsForm
+    template_name = 'create_news.html'
+    success_url = reverse_lazy('home')
+
+
+# @login_required(login_url='/login/')
+# def create_news_view(request):
+#     form = CreateNewsForm()
+#     if request.method == 'POST':
+#         form = CreateNewsForm(data=request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('/news/')
+#     return render(request, 'create_news.html', context={
+#         'form': form
+#     })
 
 
 def login_view(request):

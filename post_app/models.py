@@ -23,6 +23,8 @@ class News(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата изменения')
     tags = models.ManyToManyField(Tag, blank=True, verbose_name='Тэги')
 
+
+
     def __str__(self):
         return self.title
 
